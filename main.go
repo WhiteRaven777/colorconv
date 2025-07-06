@@ -21,6 +21,8 @@ func main() {
 		handleRGB(args)
 	case "hsl":
 		handleHSL(args)
+	case "hsv":
+		handleHSV(args)
 	case "help", "-h", "--help":
 		printUsage()
 	default:
@@ -35,12 +37,13 @@ func printUsage() {
   colorconv rgb <red> <green> <blue>
   colorconv rgb <hex>
   colorconv hsl <hue> <saturation> <lightness>
+  colorconv hsv <hue> <saturation> <value>
 
 Note:
   - <red>, <green>, <blue>: integers from 0 to 255
   - <hex>: 6-digit hex (e.g., '#ff00ff' or 'ff00ff')
   - <hue>: degrees from 0.0 to 360.0
-  - <saturation>, <lightness>: percentage from 0.0 to 100.0`)
+  - <saturation>, <lightness>, <value>: percentage from 0.0 to 100.0`)
 }
 
 func handleRGB(args []string) {
@@ -88,13 +91,32 @@ func handleHSL(args []string) {
 	}
 }
 
+func handleHSV(args []string) {
+	switch len(args) {
+	case 3:
+		// HSV mode
+		h := parseFloat64Arg(args[0], "Hue", 0.0, 360.0)
+		s := parseFloat64Arg(args[1], "Saturation", 0.0, 100.0)
+		v := parseFloat64Arg(args[2], "Value", 0.0, 100.0)
+
+		printResult(HSVToRGB(h, s, v))
+	default:
+		fmt.Println("Invalid arguments for 'hsv'.")
+		printUsage()
+		os.Exit(1)
+	}
+}
+
 func printResult(r, g, b uint8) {
 	h, s, l := RGBToHSL(r, g, b)
+	hsvH, hsvS, hsvV := RGBToHSV(r, g, b)
 	fmt.Printf(`RGB: %d, %d, %d [ #%02x%02x%02x ]
 HSL: %.1f, %.3f, %.3f [ hsl(%.1f, %.1f%%, %.1f%%) ]
+HSV: %.1f, %.3f, %.3f [ hsv(%.1f, %.1f%%, %.1f%%) ]
 `,
 		r, g, b, r, g, b,
-		h, s, l, h, s*100, l*100)
+		h, s, l, h, s*100, l*100,
+		hsvH, hsvS, hsvV, hsvH, hsvS*100, hsvV*100)
 }
 
 func parseUint8Arg(arg, name string) uint8 {

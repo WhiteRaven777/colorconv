@@ -37,12 +37,12 @@ func TestRGBToHSL(t *testing.T) {
 			wantH: 0.0, wantS: 0.00, wantL: 1.00,
 		},
 		{
-			name: "Glay",
+			name: "Gray",
 			r:    128, g: 128, b: 128,
 			wantH: 0.0, wantS: 0.00, wantL: 0.50,
 		},
 		{
-			name: "Skayblue",
+			name: "Skyblue",
 			r:    139, g: 184, b: 232,
 			wantH: 211.0, wantS: 0.669, wantL: 0.727,
 		},
@@ -97,12 +97,12 @@ func TestHSLToRGB(t *testing.T) {
 			wantR: 255, wantG: 255, wantB: 255,
 		},
 		{
-			name: "Glay",
+			name: "Gray",
 			h:    0.0, s: 0.0, l: 50.0,
 			wantR: 128, wantG: 128, wantB: 128,
 		},
 		{
-			name: "Skayblue",
+			name: "Skyblue",
 			h:    211.0, s: 66.9, l: 72.7,
 			wantR: 139, wantG: 184, wantB: 232,
 		},
@@ -120,6 +120,127 @@ func TestHSLToRGB(t *testing.T) {
 			}
 			if math.Abs(float64(b)-float64(tt.wantB)) > 1 {
 				t.Errorf("HSLToRGB() b = %d, want %d", b, tt.wantB)
+			}
+		})
+	}
+}
+
+func TestRGBToHSV(t *testing.T) {
+	tests := []struct {
+		name                string
+		r, g, b             uint8
+		wantH, wantS, wantV float64
+	}{
+		{
+			name: "Pure Red",
+			r:    255, g: 0, b: 0,
+			wantH: 0.0, wantS: 1.0, wantV: 1.0,
+		},
+		{
+			name: "Pure Green",
+			r:    0, g: 255, b: 0,
+			wantH: 120.0, wantS: 1.0, wantV: 1.0,
+		},
+		{
+			name: "Pure Blue",
+			r:    0, g: 0, b: 255,
+			wantH: 240.0, wantS: 1.0, wantV: 1.0,
+		},
+		{
+			name: "Pure Black",
+			r:    0, g: 0, b: 0,
+			wantH: 0.0, wantS: 0.0, wantV: 0.0,
+		},
+		{
+			name: "Pure White",
+			r:    255, g: 255, b: 255,
+			wantH: 0.0, wantS: 0.0, wantV: 1.0,
+		},
+		{
+			name: "Gray",
+			r:    128, g: 128, b: 128,
+			wantH: 0.0, wantS: 0.0, wantV: 0.502,
+		},
+		{
+			name: "Skyblue",
+			r:    139, g: 184, b: 232,
+			wantH: 211.0, wantS: 0.401, wantV: 0.910,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h, s, v := RGBToHSV(tt.r, tt.g, tt.b)
+
+			if math.Abs(h-tt.wantH) > 0.01 {
+				t.Errorf("RGBToHSV() h = %f, want %f", h, tt.wantH)
+			}
+			if math.Abs(s-tt.wantS) > 0.01 {
+				t.Errorf("RGBToHSV() s = %f, want %f", s, tt.wantS)
+			}
+			if math.Abs(v-tt.wantV) > 0.01 {
+				t.Errorf("RGBToHSV() v = %f, want %f", v, tt.wantV)
+			}
+		})
+	}
+}
+
+func TestHSVToRGB(t *testing.T) {
+	tests := []struct {
+		name                string
+		h, s, v             float64
+		wantR, wantG, wantB uint8
+	}{
+		{
+			name: "Pure Red",
+			h:    0.0, s: 100.0, v: 100.0,
+			wantR: 255, wantG: 0, wantB: 0,
+		},
+		{
+			name: "Pure Green",
+			h:    120.0, s: 100.0, v: 100.0,
+			wantR: 0, wantG: 255, wantB: 0,
+		},
+		{
+			name: "Pure Blue",
+			h:    240.0, s: 100.0, v: 100.0,
+			wantR: 0, wantG: 0, wantB: 255,
+		},
+		{
+			name: "Pure Black",
+			h:    0.0, s: 0.0, v: 0.0,
+			wantR: 0, wantG: 0, wantB: 0,
+		},
+		{
+			name: "Pure White",
+			h:    0.0, s: 0.0, v: 100.0,
+			wantR: 255, wantG: 255, wantB: 255,
+		},
+		{
+			name: "Gray",
+			h:    0.0, s: 0.0, v: 50.2,
+			wantR: 128, wantG: 128, wantB: 128,
+		},
+		{
+			name: "Skyblue",
+			h:    211.0, s: 40.1, v: 91.0,
+			wantR: 139, wantG: 184, wantB: 232,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r, g, b := HSVToRGB(tt.h, tt.s, tt.v)
+
+			// Allow a tolerance of 1 for rounding differences
+			if math.Abs(float64(r)-float64(tt.wantR)) > 1 {
+				t.Errorf("HSVToRGB() r = %d, want %d", r, tt.wantR)
+			}
+			if math.Abs(float64(g)-float64(tt.wantG)) > 1 {
+				t.Errorf("HSVToRGB() g = %d, want %d", g, tt.wantG)
+			}
+			if math.Abs(float64(b)-float64(tt.wantB)) > 1 {
+				t.Errorf("HSVToRGB() b = %d, want %d", b, tt.wantB)
 			}
 		})
 	}
